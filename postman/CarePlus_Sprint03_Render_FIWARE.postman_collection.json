@@ -1,0 +1,147 @@
+{
+  "info": {
+    "name": "CarePlus Sprint 03 - Render + FIWARE",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "fiwareHost", "value": "35.198.7.130" },
+    { "key": "renderBaseUrl", "value": "https://careplus-sprint3-umkto.onrender.com" },
+    { "key": "fiwareService", "value": "openiot" },
+    { "key": "fiwareServicePath", "value": "/" },
+    { "key": "apikey", "value": "TEF" },
+    { "key": "deviceId", "value": "token001" },
+    { "key": "entityId", "value": "CarePlusToken:token001" }
+  ],
+  "item": [
+    {
+      "name": "0. Health checks",
+      "item": [
+        {
+          "name": "Render API",
+          "request": { "method": "GET", "url": "{{renderBaseUrl}}/" }
+        },
+        {
+          "name": "Orion version",
+          "request": { "method": "GET", "url": "http://{{fiwareHost}}:1026/version" }
+        },
+        {
+          "name": "IoT Agent version",
+          "request": { "method": "GET", "url": "http://{{fiwareHost}}:4041/version" }
+        },
+        {
+          "name": "STH-Comet version",
+          "request": { "method": "GET", "url": "http://{{fiwareHost}}:8666/version" }
+        }
+      ]
+    },
+    {
+      "name": "1. Provision FIWARE",
+      "item": [
+        {
+          "name": "Create IoT service",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:4041/iot/services",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"apikey\": \"{{apikey}}\",\n      \"cbroker\": \"http://orion:1026\",\n      \"entity_type\": \"CarePlusToken\",\n      \"resource\": \"/iot/d\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create token001 device",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:4041/iot/devices",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"devices\": [\n    {\n      \"device_id\": \"{{deviceId}}\",\n      \"entity_name\": \"{{entityId}}\",\n      \"entity_type\": \"CarePlusToken\",\n      \"protocol\": \"PDI-IoTA-UltraLight\",\n      \"transport\": \"MQTT\",\n      \"timezone\": \"America/Sao_Paulo\",\n      \"attributes\": [\n        { \"object_id\": \"s\", \"name\": \"state\", \"type\": \"Text\" },\n        { \"object_id\": \"p\", \"name\": \"pressCount\", \"type\": \"Integer\" },\n        { \"object_id\": \"st\", \"name\": \"steps\", \"type\": \"Integer\" },\n        { \"object_id\": \"ps\", \"name\": \"pendingSteps\", \"type\": \"Integer\" },\n        { \"object_id\": \"v\", \"name\": \"tokenValue\", \"type\": \"Integer\" },\n        { \"object_id\": \"tp\", \"name\": \"totalPoints\", \"type\": \"Integer\" },\n        { \"object_id\": \"b\", \"name\": \"batteryLevel\", \"type\": \"Integer\" },\n        { \"object_id\": \"r\", \"name\": \"rssi\", \"type\": \"Integer\" },\n        { \"object_id\": \"al\", \"name\": \"activityLevel\", \"type\": \"Text\" },\n        { \"object_id\": \"ax\", \"name\": \"accelX\", \"type\": \"Number\" },\n        { \"object_id\": \"ay\", \"name\": \"accelY\", \"type\": \"Number\" },\n        { \"object_id\": \"az\", \"name\": \"accelZ\", \"type\": \"Number\" }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Render app flow",
+      "item": [
+        {
+          "name": "Start token collection",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{renderBaseUrl}}/missions/start-collection",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"USER_ID_DO_APP\",\n  \"device_id\": \"careplus-token-001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Simulate ESP32 token collected",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{renderBaseUrl}}/iot/token-collected",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"careplus-token-001\",\n  \"event\": \"token_collected\",\n  \"points\": 50\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Orion + STH-Comet",
+      "item": [
+        {
+          "name": "Get entity keyValues",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}?options=keyValues"
+          }
+        },
+        {
+          "name": "Create STH-Comet subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:1026/v2/subscriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"CarePlus Sprint 03 history\",\n  \"subject\": {\n    \"entities\": [\n      { \"id\": \"{{entityId}}\", \"type\": \"CarePlusToken\" }\n    ],\n    \"condition\": {\n      \"attrs\": [\"state\", \"steps\", \"pendingSteps\", \"tokenValue\", \"totalPoints\", \"batteryLevel\", \"rssi\", \"activityLevel\", \"accelX\", \"accelY\", \"accelZ\"]\n    }\n  },\n  \"notification\": {\n    \"http\": { \"url\": \"http://sth-comet:8666/notify\" },\n    \"attrs\": [\"state\", \"steps\", \"pendingSteps\", \"tokenValue\", \"totalPoints\", \"batteryLevel\", \"rssi\", \"activityLevel\", \"accelX\", \"accelY\", \"accelZ\"],\n    \"attrsFormat\": \"legacy\"\n  },\n  \"throttling\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get STH steps history",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/CarePlusToken/id/{{entityId}}/attributes/steps?lastN=20"
+          }
+        }
+      ]
+    }
+  ]
+}
