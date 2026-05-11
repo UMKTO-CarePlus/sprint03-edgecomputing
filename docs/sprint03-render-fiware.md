@@ -1,148 +1,186 @@
-# CarePlus Sprint 03 - Render + FIWARE
+# CarePlus Sprint 03 - App NFC + FIWARE
 
-Este documento descreve a arquitetura final de IoT mantendo o backend do CarePlus publicado no Render e adicionando a VM FIWARE do professor como camada oficial de Edge Computing.
+Este documento descreve a arquitetura final de Edge Computing. O app CarePlus no celular conta passos, valida a missao por NFC e atualiza o backend no Render. O ESP32 funciona como totem de feedback fisico com dois LEDs e buzzer. O historico para o dashboard web e alimentado no FIWARE via Postman e persistido no STH-Comet.
 
 ## Arquitetura
 
 ```mermaid
 flowchart LR
-    F["Frontend/App CarePlus"] --> R["FastAPI no Render"]
-    R --> B["Regras do produto: usuario, missoes, pontos, mundo"]
-
-    E["ESP32 fisico com bateria"] --> M["Mosquitto MQTT :1883"]
-    M --> A["IoT Agent MQTT :4041"]
-    A --> O["Orion Context Broker :1026"]
+    A["App CarePlus no celular"] -->|"passos + NFC"| R["FastAPI no Render"]
+    R -->|"GET /iot/totem-status/totem001"| E["ESP32 totem"]
+    E --> L["LED verde/vermelho + buzzer"]
+    P["Postman"] -->|"cria/atualiza entidade"| O["Orion Context Broker :1026"]
     O --> S["STH-Comet :8666"]
-    S --> D["Dashboard historico"]
-    O --> P["Postman"]
-
-    E -->|"evento validado"| R
+    S --> D["Dashboard Flask :5000"]
 ```
 
-## Papel de cada camada
+## Backend Render
 
-### Render
-
-O Render continua sendo a camada de produto do CarePlus. Ele hospeda o backend FastAPI usado pelo app para login, missoes, pontuacao, streak e evolucao do Mundo Ideal.
-
-Endpoint principal usado pelo ESP32 no evento de validacao:
+Endpoint consultado pelo ESP32:
 
 ```http
-POST https://careplus-sprint3-umkto.onrender.com/iot/token-collected
-Content-Type: application/json
+GET https://careplus-sprint3-umkto.onrender.com/iot/totem-status/totem001
 ```
+
+Respostas esperadas:
 
 ```json
 {
-  "device_id": "careplus-token-001",
-  "event": "token_collected",
-  "points": 50
+  "totemId": "totem001",
+  "status": "success",
+  "message": "Missao validada.",
+  "updatedAt": "2026-05-11T10:30:00"
 }
 ```
 
-Importante: esse endpoint espera que o usuario tenha iniciado a coleta pelo app antes. O fluxo correto e abrir a missao no app, iniciar a coleta e depois validar no ESP32.
+Mapeamento no ESP32:
 
-### FIWARE
+| Status | Feedback |
+|---|---|
+| `success` | LED verde + buzzer de sucesso |
+| `error` | LED vermelho + buzzer de erro |
+| `validating` | LEDs verde/vermelho + bip curto |
+| `idle` | LEDs apagados |
 
-O FIWARE e a camada IoT academica da Sprint 03. Ele recebe a telemetria do ESP32, cria/atualiza entidade no Orion e persiste historico no STH-Comet.
+Endpoints usados no fluxo do app/Postman:
+
+```text
+GET  /totems
+POST /missions/start
+POST /missions/sync-steps
+POST /missions/validate-nfc
+GET  /iot/totem-status/{totem_id}
+POST /iot/totem-feedback
+```
+
+## FIWARE e STH-Comet
 
 Valores usados:
 
 | Item | Valor |
 |---|---|
 | Orion | `http://35.198.7.130:1026` |
-| IoT Agent MQTT | `http://35.198.7.130:4041` |
 | STH-Comet | `http://35.198.7.130:8666` |
-| Mosquitto MQTT | `35.198.7.130:1883` |
 | FIWARE service | `openiot` |
 | FIWARE service path | `/` |
-| API key | `TEF` |
-| Device ID FIWARE | `token001` |
-| Entity ID | `CarePlusToken:token001` |
-| IoT Agent resource | `/iot/d` |
-| MQTT topic | `/TEF/token001/attrs` |
+| Entity ID | `CarePlusMission:totem001` |
+| Entity type | `CarePlusWalkingMission` |
 
-Payload UltraLight publicado pelo ESP32:
+A entidade do dashboard usa estes atributos:
+
+| Atributo | Tipo | Descricao |
+|---|---|---|
+| `steps` | Integer | Passos sincronizados pelo app/celular |
+| `distanceMeters` | Number | Estimativa em metros |
+| `distanceKm` | Number | Estimativa em km |
+| `points` | Integer | Pontos da missao |
+| `validationStatus` | Text | `idle`, `validating`, `success` ou `error` |
+| `totemId` | Text | Totem usado na missao |
+| `missionId` | Text | ID da missao |
+| `userId` | Text | Usuario usado no teste |
+
+A estimativa padrao e:
 
 ```text
-s|tracking|p|0|st|12|ps|12|v|0|tp|0|b|99|r|-55|al|moderate|ax|0.21|ay|1.12|az|9.71
+distanceMeters = steps * 0.75
+distanceKm = distanceMeters / 1000
 ```
 
-Mapeamento:
+## Firmware ESP32
 
-| Object ID | Atributo Orion |
-|---|---|
-| `s` | `state` |
-| `p` | `pressCount` |
-| `st` | `steps` |
-| `ps` | `pendingSteps` |
-| `v` | `tokenValue` |
-| `tp` | `totalPoints` |
-| `b` | `batteryLevel` |
-| `r` | `rssi` |
-| `al` | `activityLevel` |
-| `ax` | `accelX` |
-| `ay` | `accelY` |
-| `az` | `accelZ` |
-
-## Firmware
-
-O firmware hibrido esta em:
+O firmware esta em:
 
 ```text
 iot/sprint03_hybrid_esp32/sprint03_hybrid_esp32.ino
 ```
 
-Ele faz duas coisas:
+Ele usa apenas:
 
-- publica telemetria periodica no FIWARE via MQTT;
-- quando o botao valida uma missao, publica o evento no FIWARE e chama o Render com `POST /iot/token-collected`.
+```cpp
+#include <HTTPClient.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+```
 
-Antes de gravar no ESP32 fisico, ajuste:
+Pinos do diagrama Wokwi:
+
+| Componente | GPIO |
+|---|---|
+| LED verde | `18` |
+| LED vermelho | `19` |
+| Buzzer | `23` |
+
+Antes de gravar no ESP32 fisico, ajuste rede se necessario:
 
 ```cpp
 const char* ssid = "NOME_DA_REDE";
 const char* password = "SENHA_DA_REDE";
-const char* mqttServer = "IP_DA_VM_FIWARE";
-const char* renderTokenCollectedUrl =
-  "https://careplus-sprint3-umkto.onrender.com/iot/token-collected";
 ```
 
-## Bateria
+## Dashboard web
 
-Para a apresentacao, a opcao mais segura e alimentar o ESP32 por um power bank USB 5V. Isso atende a demonstracao de autonomia de bancada por 2-4h com baixo risco.
+O dashboard dinamico esta em:
 
-Se usar Li-ion/LiPo, use modulo carregador/protecao e regulador adequado. Nao ligue uma celula Li-ion diretamente no pino 5V/3V3 sem regulagem correta.
+```text
+dashboard_web/app.py
+```
 
-O firmware reduz consumo evitando polling HTTPS constante. A telemetria normal e enviada a cada 30s, LEDs e buzzer so ligam em evento, e o display mostra apenas telas simples.
+Ele roda uma pagina web e API local na porta `5000`, consumindo dados historicos do STH-Comet.
+
+Endpoints principais:
+
+```text
+GET /api/health
+GET /api/entity
+GET /api/history?lastN=100
+GET /api/history/steps?lastN=100
+GET /api/history/distanceMeters?lastN=100
+```
+
+Execucao local:
+
+```bash
+cd dashboard_web
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
+
+Acesse:
+
+```text
+http://localhost:5000
+```
 
 ## Roteiro de teste
 
-1. Ligar a VM FIWARE e subir containers do tutorial do professor.
-2. Validar no Postman:
-   - `GET http://35.198.7.130:1026/version`
-   - `GET http://35.198.7.130:4041/version`
-   - `GET http://35.198.7.130:8666/version`
-3. Provisionar service e device no IoT Agent.
-4. Iniciar a missao no app CarePlus publicado no Render.
-5. Ligar o ESP32 e confirmar no Serial Monitor:
-   - Wi-Fi conectado;
-   - MQTT conectado;
-   - payload publicado em `/TEF/token001/attrs`.
-6. Gerar passos ou simular movimento e apertar o botao.
-7. Confirmar no Serial Monitor:
-   - publish FIWARE `validated`;
-   - `POST` para Render com HTTP 2xx.
-8. Consultar `CarePlusToken:token001` no Orion.
-9. Consultar historico no STH-Comet.
-10. Abrir dashboard e capturar prints para a entrega.
+1. Ligar a VM FIWARE e subir Orion/STH-Comet.
+2. Importar `postman/CarePlus_Sprint03_Render_FIWARE.postman_collection.json`.
+3. Executar `0. Health checks`.
+4. Em `1. App + NFC flow`, executar:
+   - `List totems`;
+   - `Start walking mission`;
+   - `Sync steps from phone`;
+   - `Validate NFC mission`;
+   - `Get ESP32 totem status`.
+5. Abrir o Wokwi e rodar o firmware do ESP32.
+6. Em `2. ESP32 feedback demo`, alternar `validating`, `success`, `error` e `idle` para ver LEDs/buzzer.
+7. Em `3. FIWARE + STH dashboard flow`, executar:
+   - `Create dashboard entity`;
+   - `Create STH-Comet subscription`;
+   - `Update FIWARE mission history`;
+   - `Get dashboard entity keyValues`;
+   - `Get STH steps history`;
+   - `Get STH distance history`.
+8. Subir o dashboard web com `python dashboard_web/app.py`.
+9. Abrir `http://localhost:5000` ou `http://IP_DA_VM:5000`.
 
 ## Video de entrega
 
 O video de ate 3 minutos deve mostrar:
 
-- ESP32 fisico alimentado por bateria/power bank;
-- Serial Monitor publicando MQTT e chamando Render;
-- Postman consultando FIWARE;
-- dashboard com historico;
-- app CarePlus no Render refletindo a missao/pontuacao.
+- app no celular iniciando/sincronizando a missao e validando NFC;
+- ESP32/Wokwi acendendo LED verde e tocando buzzer quando o status fica `success`;
+- Postman atualizando a entidade FIWARE;
+- dashboard web na porta `5000` mostrando passos, distancia estimada, pontos e historico.

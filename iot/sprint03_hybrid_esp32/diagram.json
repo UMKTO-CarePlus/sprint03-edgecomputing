@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "author": "Needy",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-half", "id": "bb1", "top": -51, "left": 118, "attrs": {} },
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -48, "left": -23.96, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -32.4,
+      "left": 176.6,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": -32.4,
+      "left": 205.4,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 52.8,
+      "left": 201.05,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 52.8,
+      "left": 172.25,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": -74.4,
+      "left": 136.2,
+      "attrs": { "volume": "0.1" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:GND.2", "bb1:tn.1", "black", [ "v0", "h76.8" ] ],
+    [ "bb1:6t.a", "bb1:tn.5", "black", [ "v0" ] ],
+    [ "bb1:9t.a", "bb1:tn.7", "black", [ "v0" ] ],
+    [ "led1:A", "bb1:7t.b", "", [ "$bb" ] ],
+    [ "led1:C", "bb1:6t.b", "", [ "$bb" ] ],
+    [ "led2:A", "bb1:10t.b", "", [ "$bb" ] ],
+    [ "led2:C", "bb1:9t.b", "", [ "$bb" ] ],
+    [ "r1:1", "bb1:10t.d", "", [ "$bb" ] ],
+    [ "r1:2", "bb1:10b.h", "", [ "$bb" ] ],
+    [ "r2:1", "bb1:7t.d", "", [ "$bb" ] ],
+    [ "r2:2", "bb1:7b.h", "", [ "$bb" ] ],
+    [ "bb1:10b.i", "esp:18", "green", [ "v86.4", "h-144", "v-96" ] ],
+    [ "bb1:7b.i", "esp:19", "red", [ "v76.8", "h-105.6", "v-124.8" ] ],
+    [ "bb1:tn.2", "bb1:3t.a", "black", [ "v0" ] ],
+    [ "bz1:1", "bb1:3t.b", "", [ "$bb" ] ],
+    [ "bz1:2", "bb1:4t.b", "", [ "$bb" ] ],
+    [ "bb1:4t.c", "esp:23", "orange", [ "v144", "h-67.2", "v-124.8" ] ]
+  ],
+  "dependencies": {}
+}

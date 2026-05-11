@@ -1,36 +1,40 @@
-﻿# CarePlus Sprint 03 - Edge Computing
+# CarePlus Sprint 03 - Edge Computing
 
-Repositório da entrega de Edge Computing da Sprint 03 do Challenge CarePlus.
+Repositorio da entrega de Edge Computing da Sprint 03 do Challenge CarePlus.
 
-A solução mantém o app/back-end CarePlus publicado no Render e usa FIWARE na VM do professor como camada oficial de IoT, histórico e dashboard.
+A solucao usa o app CarePlus no celular para contar passos e validar a missao por NFC. O ESP32 representa o totem fisico, exibindo feedback com LED verde, LED vermelho e buzzer. O FIWARE/Orion/STH-Comet guarda o historico usado pelo dashboard web.
 
 ## Estrutura
 
 ```text
-iot/sprint03_hybrid_esp32/                 Firmware ESP32 hibrido FIWARE + Render
-docs/sprint03-render-fiware.md             Arquitetura, operação e roteiro de teste
+iot/sprint03_hybrid_esp32/                 Firmware ESP32 simples para LED/buzzer
+iot/sprint03_hybrid_esp32/diagram.json     Circuito Wokwi com 2 LEDs e buzzer
 postman/CarePlus_Sprint03_Render_FIWARE.postman_collection.json
-dashboard_colab/careplus_sprint03_fiware_dashboard.py
+dashboard_web/app.py                       Dashboard web Flask na porta 5000
+dashboard_web/careplus-dashboard.service   Modelo de servico Linux
+docs/sprint03-render-fiware.md             Arquitetura, operacao e roteiro de teste
 INTEGRANTES.TXT
 ```
 
 ## Fluxo
 
 ```text
-ESP32 -> MQTT/Mosquitto -> IoT Agent -> Orion -> STH-Comet -> Dashboard
-ESP32 -> FastAPI no Render quando a missão é validada
-Frontend/App CarePlus -> FastAPI no Render
+Celular/App CarePlus -> conta passos -> le tag NFC -> FastAPI no Render
+FastAPI no Render -> status do totem
+ESP32/Wokwi -> GET /iot/totem-status/totem001 -> LED verde/vermelho + buzzer
+Postman -> Orion -> STH-Comet -> Dashboard web Flask
 ```
 
-## Execução resumida
+## Execucao resumida
 
 1. Subir a VM FIWARE do professor.
 2. Importar a collection Postman.
-3. Rodar os health checks de Orion, IoT Agent e STH-Comet.
-4. Provisionar service/device `token001`.
-5. Gravar o firmware em `iot/sprint03_hybrid_esp32/sprint03_hybrid_esp32.ino`.
-6. Iniciar a coleta no app CarePlus/Render.
-7. Validar a missão no ESP32.
-8. Conferir entidade no Orion, histórico no STH-Comet e dashboard.
+3. Rodar os health checks de Render, Orion e STH-Comet.
+4. No Postman, executar o fluxo do app: listar totens, iniciar missao, sincronizar passos e validar NFC.
+5. No Postman, criar/atualizar a entidade `CarePlusMission:totem001` para alimentar o STH-Comet.
+6. Importar/simular no Wokwi a pasta `iot/sprint03_hybrid_esp32/`.
+7. Usar os requests de feedback do Postman para testar `validating`, `success`, `error` e `idle` no ESP32.
+8. Rodar `python dashboard_web/app.py` e acessar `http://localhost:5000`.
+9. Conferir passos, distancia estimada, pontos e status no dashboard.
 
 Detalhes completos em `docs/sprint03-render-fiware.md`.

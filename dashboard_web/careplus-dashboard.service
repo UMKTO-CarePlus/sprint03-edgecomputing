@@ -1,0 +1,19 @@
+[Unit]
+Description=CarePlus Sprint 03 FIWARE Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/careplus-dashboard
+Environment=FIWARE_HOST=35.198.7.130
+Environment=FIWARE_SERVICE=openiot
+Environment=FIWARE_SERVICE_PATH=/
+Environment=ENTITY_ID=CarePlusMission:totem001
+Environment=ENTITY_TYPE=CarePlusWalkingMission
+ExecStart=/opt/careplus-dashboard/venv/bin/python /opt/careplus-dashboard/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

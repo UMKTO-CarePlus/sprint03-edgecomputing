@@ -3,6 +3,7 @@
 *.elf
 *.map
 .vscode/
+.codex-local/
 
 # Python
 __pycache__/

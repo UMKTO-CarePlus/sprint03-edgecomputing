@@ -1,16 +1,24 @@
 {
   "info": {
-    "name": "CarePlus Sprint 03 - Render + FIWARE",
+    "name": "CarePlus Sprint 03 - App NFC + FIWARE Dashboard",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "fiwareHost", "value": "35.198.7.130" },
     { "key": "renderBaseUrl", "value": "https://careplus-sprint3-umkto.onrender.com" },
+    { "key": "fiwareHost", "value": "35.198.7.130" },
     { "key": "fiwareService", "value": "openiot" },
     { "key": "fiwareServicePath", "value": "/" },
-    { "key": "apikey", "value": "TEF" },
-    { "key": "deviceId", "value": "token001" },
-    { "key": "entityId", "value": "CarePlusToken:token001" }
+    { "key": "userId", "value": "USER_ID_DO_APP" },
+    { "key": "totemId", "value": "totem001" },
+    { "key": "nfcToken", "value": "CP-TOTEM-001" },
+    { "key": "missionId", "value": "mission_walk_totem001" },
+    { "key": "steps", "value": "1000" },
+    { "key": "points", "value": "100" },
+    { "key": "validationStatus", "value": "success" },
+    { "key": "distanceMeters", "value": "750" },
+    { "key": "distanceKm", "value": "0.75" },
+    { "key": "entityId", "value": "CarePlusMission:totem001" },
+    { "key": "entityType", "value": "CarePlusWalkingMission" }
   ],
   "item": [
     {
@@ -18,100 +26,197 @@
       "item": [
         {
           "name": "Render API",
-          "request": { "method": "GET", "url": "{{renderBaseUrl}}/" }
+          "request": {
+            "method": "GET",
+            "url": "{{renderBaseUrl}}/"
+          }
         },
         {
           "name": "Orion version",
-          "request": { "method": "GET", "url": "http://{{fiwareHost}}:1026/version" }
-        },
-        {
-          "name": "IoT Agent version",
-          "request": { "method": "GET", "url": "http://{{fiwareHost}}:4041/version" }
+          "request": {
+            "method": "GET",
+            "url": "http://{{fiwareHost}}:1026/version"
+          }
         },
         {
           "name": "STH-Comet version",
-          "request": { "method": "GET", "url": "http://{{fiwareHost}}:8666/version" }
-        }
-      ]
-    },
-    {
-      "name": "1. Provision FIWARE",
-      "item": [
-        {
-          "name": "Create IoT service",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
-            ],
-            "url": "http://{{fiwareHost}}:4041/iot/services",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"services\": [\n    {\n      \"apikey\": \"{{apikey}}\",\n      \"cbroker\": \"http://orion:1026\",\n      \"entity_type\": \"CarePlusToken\",\n      \"resource\": \"/iot/d\"\n    }\n  ]\n}"
-            }
-          }
-        },
-        {
-          "name": "Create token001 device",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
-            ],
-            "url": "http://{{fiwareHost}}:4041/iot/devices",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"devices\": [\n    {\n      \"device_id\": \"{{deviceId}}\",\n      \"entity_name\": \"{{entityId}}\",\n      \"entity_type\": \"CarePlusToken\",\n      \"protocol\": \"PDI-IoTA-UltraLight\",\n      \"transport\": \"MQTT\",\n      \"timezone\": \"America/Sao_Paulo\",\n      \"attributes\": [\n        { \"object_id\": \"s\", \"name\": \"state\", \"type\": \"Text\" },\n        { \"object_id\": \"p\", \"name\": \"pressCount\", \"type\": \"Integer\" },\n        { \"object_id\": \"st\", \"name\": \"steps\", \"type\": \"Integer\" },\n        { \"object_id\": \"ps\", \"name\": \"pendingSteps\", \"type\": \"Integer\" },\n        { \"object_id\": \"v\", \"name\": \"tokenValue\", \"type\": \"Integer\" },\n        { \"object_id\": \"tp\", \"name\": \"totalPoints\", \"type\": \"Integer\" },\n        { \"object_id\": \"b\", \"name\": \"batteryLevel\", \"type\": \"Integer\" },\n        { \"object_id\": \"r\", \"name\": \"rssi\", \"type\": \"Integer\" },\n        { \"object_id\": \"al\", \"name\": \"activityLevel\", \"type\": \"Text\" },\n        { \"object_id\": \"ax\", \"name\": \"accelX\", \"type\": \"Number\" },\n        { \"object_id\": \"ay\", \"name\": \"accelY\", \"type\": \"Number\" },\n        { \"object_id\": \"az\", \"name\": \"accelZ\", \"type\": \"Number\" }\n      ]\n    }\n  ]\n}"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Render app flow",
-      "item": [
-        {
-          "name": "Start token collection",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": "{{renderBaseUrl}}/missions/start-collection",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": \"USER_ID_DO_APP\",\n  \"device_id\": \"careplus-token-001\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Simulate ESP32 token collected",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": "{{renderBaseUrl}}/iot/token-collected",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"device_id\": \"careplus-token-001\",\n  \"event\": \"token_collected\",\n  \"points\": 50\n}"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "3. Orion + STH-Comet",
-      "item": [
-        {
-          "name": "Get entity keyValues",
           "request": {
             "method": "GET",
+            "url": "http://{{fiwareHost}}:8666/version"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. App + NFC flow",
+      "item": [
+        {
+          "name": "List totems",
+          "request": {
+            "method": "GET",
+            "url": "{{renderBaseUrl}}/totems"
+          }
+        },
+        {
+          "name": "Start walking mission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.mission && data.mission.id) {",
+                  "  pm.collectionVariables.set('missionId', data.mission.id);",
+                  "  pm.collectionVariables.set('points', String(data.mission.points || pm.collectionVariables.get('points')));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
             "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/missions/start",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"totem_id\": \"{{totemId}}\",\n  \"initial_steps\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Sync steps from phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/missions/sync-steps",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"mission_id\": \"{{missionId}}\",\n  \"steps\": {{steps}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Validate NFC mission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.validation) {",
+                  "  pm.collectionVariables.set('steps', String(data.validation.steps || pm.collectionVariables.get('steps')));",
+                  "  pm.collectionVariables.set('points', String(data.validation.points || pm.collectionVariables.get('points')));",
+                  "  pm.collectionVariables.set('validationStatus', 'success');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/missions/validate-nfc",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"mission_id\": \"{{missionId}}\",\n  \"totem_id\": \"{{totemId}}\",\n  \"steps\": {{steps}},\n  \"nfc_token\": \"{{nfcToken}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"validation_method\": \"NFC\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get ESP32 totem status",
+          "request": {
+            "method": "GET",
+            "url": "{{renderBaseUrl}}/iot/totem-status/{{totemId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. ESP32 feedback demo",
+      "item": [
+        {
+          "name": "Set validating feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/iot/totem-feedback",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"validating\",\n  \"message\": \"Validando NFC no app.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Set success feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/iot/totem-feedback",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"success\",\n  \"message\": \"Missao validada. Acender LED verde e tocar sucesso.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Set error feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/iot/totem-feedback",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"error\",\n  \"message\": \"Falha na validacao NFC.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Set idle feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/iot/totem-feedback",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"idle\",\n  \"message\": \"Aguardando evento.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. FIWARE + STH dashboard flow",
+      "item": [
+        {
+          "name": "Create dashboard entity",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
               { "key": "fiware-service", "value": "{{fiwareService}}" },
               { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
             ],
-            "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}?options=keyValues"
+            "url": "http://{{fiwareHost}}:1026/v2/entities",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{entityId}}\",\n  \"type\": \"{{entityType}}\",\n  \"steps\": { \"type\": \"Integer\", \"value\": 0 },\n  \"distanceMeters\": { \"type\": \"Number\", \"value\": 0 },\n  \"distanceKm\": { \"type\": \"Number\", \"value\": 0 },\n  \"points\": { \"type\": \"Integer\", \"value\": 0 },\n  \"validationStatus\": { \"type\": \"Text\", \"value\": \"idle\" },\n  \"totemId\": { \"type\": \"Text\", \"value\": \"{{totemId}}\" },\n  \"missionId\": { \"type\": \"Text\", \"value\": \"{{missionId}}\" },\n  \"userId\": { \"type\": \"Text\", \"value\": \"{{userId}}\" }\n}"
+            }
           }
         },
         {
@@ -126,8 +231,53 @@
             "url": "http://{{fiwareHost}}:1026/v2/subscriptions",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"CarePlus Sprint 03 history\",\n  \"subject\": {\n    \"entities\": [\n      { \"id\": \"{{entityId}}\", \"type\": \"CarePlusToken\" }\n    ],\n    \"condition\": {\n      \"attrs\": [\"state\", \"steps\", \"pendingSteps\", \"tokenValue\", \"totalPoints\", \"batteryLevel\", \"rssi\", \"activityLevel\", \"accelX\", \"accelY\", \"accelZ\"]\n    }\n  },\n  \"notification\": {\n    \"http\": { \"url\": \"http://sth-comet:8666/notify\" },\n    \"attrs\": [\"state\", \"steps\", \"pendingSteps\", \"tokenValue\", \"totalPoints\", \"batteryLevel\", \"rssi\", \"activityLevel\", \"accelX\", \"accelY\", \"accelZ\"],\n    \"attrsFormat\": \"legacy\"\n  },\n  \"throttling\": 1\n}"
+              "raw": "{\n  \"description\": \"CarePlus walking mission history\",\n  \"subject\": {\n    \"entities\": [\n      { \"id\": \"{{entityId}}\", \"type\": \"{{entityType}}\" }\n    ],\n    \"condition\": {\n      \"attrs\": [\"steps\", \"distanceMeters\", \"distanceKm\", \"points\", \"validationStatus\", \"totemId\", \"missionId\", \"userId\"]\n    }\n  },\n  \"notification\": {\n    \"http\": { \"url\": \"http://sth-comet:8666/notify\" },\n    \"attrs\": [\"steps\", \"distanceMeters\", \"distanceKm\", \"points\", \"validationStatus\", \"totemId\", \"missionId\", \"userId\"],\n    \"attrsFormat\": \"legacy\"\n  },\n  \"throttling\": 1\n}"
             }
+          }
+        },
+        {
+          "name": "Update FIWARE mission history",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const steps = Number(pm.collectionVariables.get('steps') || 0);",
+                  "const distanceMeters = Number((steps * 0.75).toFixed(2));",
+                  "const distanceKm = Number((distanceMeters / 1000).toFixed(3));",
+                  "pm.collectionVariables.set('distanceMeters', String(distanceMeters));",
+                  "pm.collectionVariables.set('distanceKm', String(distanceKm));",
+                  "if (!pm.collectionVariables.get('validationStatus')) {",
+                  "  pm.collectionVariables.set('validationStatus', 'success');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}/attrs?options=forcedUpdate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"steps\": { \"type\": \"Integer\", \"value\": {{steps}} },\n  \"distanceMeters\": { \"type\": \"Number\", \"value\": {{distanceMeters}} },\n  \"distanceKm\": { \"type\": \"Number\", \"value\": {{distanceKm}} },\n  \"points\": { \"type\": \"Integer\", \"value\": {{points}} },\n  \"validationStatus\": { \"type\": \"Text\", \"value\": \"{{validationStatus}}\" },\n  \"totemId\": { \"type\": \"Text\", \"value\": \"{{totemId}}\" },\n  \"missionId\": { \"type\": \"Text\", \"value\": \"{{missionId}}\" },\n  \"userId\": { \"type\": \"Text\", \"value\": \"{{userId}}\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get dashboard entity keyValues",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}?options=keyValues"
           }
         },
         {
@@ -138,7 +288,18 @@
               { "key": "fiware-service", "value": "{{fiwareService}}" },
               { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
             ],
-            "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/CarePlusToken/id/{{entityId}}/attributes/steps?lastN=20"
+            "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/{{entityType}}/id/{{entityId}}/attributes/steps?lastN=20"
+          }
+        },
+        {
+          "name": "Get STH distance history",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "fiware-service", "value": "{{fiwareService}}" },
+              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+            ],
+            "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/{{entityType}}/id/{{entityId}}/attributes/distanceMeters?lastN=20"
           }
         }
       ]
