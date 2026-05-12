@@ -5,7 +5,9 @@ import requests
 from flask import Flask, jsonify, render_template_string, request
 
 
-FIWARE_HOST = os.getenv("FIWARE_HOST", "35.198.7.130")
+FIWARE_HOST = os.getenv("FIWARE_HOST", "34.69.120.192")
+STH_COMET_URL = os.getenv("STH_COMET_URL", f"http://{FIWARE_HOST}:8666").rstrip("/")
+DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "8666"))
 FIWARE_SERVICE = os.getenv("FIWARE_SERVICE", "openiot")
 FIWARE_SERVICE_PATH = os.getenv("FIWARE_SERVICE_PATH", "/")
 ENTITY_ID = os.getenv("ENTITY_ID", "CarePlusMission:totem001")
@@ -59,7 +61,7 @@ def get_orion_entity():
 
 def get_sth_attribute(attribute, last_n=100):
     url = (
-        f"http://{FIWARE_HOST}:8666/STH/v1/contextEntities/type/{ENTITY_TYPE}"
+        f"{STH_COMET_URL}/STH/v1/contextEntities/type/{ENTITY_TYPE}"
         f"/id/{ENTITY_ID}/attributes/{attribute}?lastN={last_n}"
     )
     data = fiware_get(url)
@@ -103,6 +105,11 @@ def build_history(last_n=100):
             row[attribute] = point["value"]
 
     rows = list(rows_by_time.values())
+    for row in rows:
+        distance_meters = row.get("distanceMeters")
+        if isinstance(distance_meters, (int, float)) and not row.get("distanceKm"):
+            row["distanceKm"] = round(distance_meters / 1000, 3)
+
     rows.sort(key=lambda row: row["recvTime"])
     return rows, errors
 
@@ -114,6 +121,11 @@ def latest_values(history):
         for attribute in TRACKED_ATTRIBUTES:
             if attribute in row and row[attribute] is not None:
                 latest[attribute] = row[attribute]
+
+    distance_meters = latest.get("distanceMeters")
+    if isinstance(distance_meters, (int, float)) and not latest.get("distanceKm"):
+        latest["distanceKm"] = round(distance_meters / 1000, 3)
+
     return latest
 
 
@@ -124,6 +136,8 @@ def index():
         entity_id=ENTITY_ID,
         entity_type=ENTITY_TYPE,
         fiware_host=FIWARE_HOST,
+        sth_comet_url=STH_COMET_URL,
+        dashboard_port=DASHBOARD_PORT,
         generated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     )
 
@@ -131,8 +145,10 @@ def index():
 @app.get("/api/health")
 def api_health():
     checks = {}
-    for name, port in [("orion", 1026), ("sthComet", 8666)]:
-        url = f"http://{FIWARE_HOST}:{port}/version"
+    for name, url in [
+        ("orion", f"http://{FIWARE_HOST}:1026/version"),
+        ("sthComet", f"{STH_COMET_URL}/version"),
+    ]:
         try:
             data = fiware_get(url)
             checks[name] = {"ok": True, "url": url, "data": data}
@@ -143,6 +159,8 @@ def api_health():
         {
             "service": "careplus-dashboard",
             "fiwareHost": FIWARE_HOST,
+            "sthCometUrl": STH_COMET_URL,
+            "dashboardPort": DASHBOARD_PORT,
             "entityId": ENTITY_ID,
             "entityType": ENTITY_TYPE,
             "checks": checks,
@@ -398,7 +416,7 @@ DASHBOARD_HTML = """
     <section class="toolbar">
       <div class="meta">
         Entidade: <strong>{{ entity_id }}</strong> | Tipo: <strong>{{ entity_type }}</strong><br>
-        FIWARE: <strong>{{ fiware_host }}</strong> | API local: <strong>:5000</strong>
+        FIWARE: <strong>{{ fiware_host }}</strong> | STH: <strong>{{ sth_comet_url }}</strong> | API local: <strong>:{{ dashboard_port }}</strong>
       </div>
       <select id="lastN">
         <option value="20">Ultimos 20</option>
@@ -587,4 +605,4 @@ DASHBOARD_HTML = """
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=DASHBOARD_PORT)

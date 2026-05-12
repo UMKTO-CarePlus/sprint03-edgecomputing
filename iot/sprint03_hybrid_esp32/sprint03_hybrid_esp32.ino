@@ -17,9 +17,11 @@ const int ledError = 19;
 const int buzzer = 23;
 
 const unsigned long pollInterval = 1500;
+const unsigned long feedbackDuration = 3000;
 
 String lastStatus = "";
 unsigned long lastPoll = 0;
+unsigned long feedbackUntil = 0;
 WiFiClientSecure secureClient;
 
 void setFeedbackLights(bool successOn, bool errorOn) {
@@ -44,22 +46,26 @@ void beepValidating() {
 void applyStatus(const String& status) {
   if (status == "success") {
     setFeedbackLights(true, false);
+    feedbackUntil = millis() + feedbackDuration;
     beepSuccess();
     return;
   }
 
   if (status == "error") {
     setFeedbackLights(false, true);
+    feedbackUntil = millis() + feedbackDuration;
     beepError();
     return;
   }
 
   if (status == "validating") {
+    feedbackUntil = 0;
     setFeedbackLights(true, true);
     beepValidating();
     return;
   }
 
+  feedbackUntil = 0;
   setFeedbackLights(false, false);
 }
 
@@ -143,6 +149,11 @@ void loop() {
     connectWiFi();
     delay(1000);
     return;
+  }
+
+  if (feedbackUntil > 0 && millis() >= feedbackUntil) {
+    feedbackUntil = 0;
+    setFeedbackLights(false, false);
   }
 
   if (millis() - lastPoll >= pollInterval) {

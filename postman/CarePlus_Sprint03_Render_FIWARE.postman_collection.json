@@ -5,10 +5,16 @@
   },
   "variable": [
     { "key": "renderBaseUrl", "value": "https://careplus-sprint3-umkto.onrender.com" },
-    { "key": "fiwareHost", "value": "35.198.7.130" },
+    { "key": "fiwareHost", "value": "34.69.120.192" },
     { "key": "fiwareService", "value": "openiot" },
     { "key": "fiwareServicePath", "value": "/" },
-    { "key": "userId", "value": "USER_ID_DO_APP" },
+    { "key": "userId", "value": "" },
+    { "key": "postmanFullName", "value": "Postman CarePlus" },
+    { "key": "postmanEmail", "value": "" },
+    { "key": "postmanPhone", "value": "11999999999" },
+    { "key": "postmanCpf", "value": "" },
+    { "key": "postmanBirthDate", "value": "01/01/1990" },
+    { "key": "postmanPassword", "value": "Senha123" },
     { "key": "totemId", "value": "totem001" },
     { "key": "nfcToken", "value": "CP-TOTEM-001" },
     { "key": "missionId", "value": "mission_walk_totem001" },
@@ -48,7 +54,90 @@
       ]
     },
     {
-      "name": "1. App + NFC flow",
+      "name": "1. Auth setup",
+      "item": [
+        {
+          "name": "Register test user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function cpfDigit(numbers) {",
+                  "  let sum = 0;",
+                  "  for (let i = 0; i < numbers.length; i += 1) {",
+                  "    sum += Number(numbers[i]) * (numbers.length + 1 - i);",
+                  "  }",
+                  "  const remainder = (sum * 10) % 11;",
+                  "  return remainder === 10 ? 0 : remainder;",
+                  "}",
+                  "const suffix = Date.now();",
+                  "const baseCpf = String(Math.floor(100000000 + Math.random() * 900000000));",
+                  "const firstDigit = cpfDigit(baseCpf);",
+                  "const secondDigit = cpfDigit(baseCpf + firstDigit);",
+                  "pm.collectionVariables.set('postmanEmail', `postman.careplus.${suffix}@example.com`);",
+                  "pm.collectionVariables.set('postmanCpf', `${baseCpf}${firstDigit}${secondDigit}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.user && data.user.id) {",
+                  "  pm.collectionVariables.set('userId', data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"{{postmanFullName}}\",\n  \"email\": \"{{postmanEmail}}\",\n  \"phone\": \"{{postmanPhone}}\",\n  \"cpf\": \"{{postmanCpf}}\",\n  \"birth_date\": \"{{postmanBirthDate}}\",\n  \"password\": \"{{postmanPassword}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login test user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.user && data.user.id) {",
+                  "  pm.collectionVariables.set('userId', data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{renderBaseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{postmanEmail}}\",\n  \"password\": \"{{postmanPassword}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. App + NFC flow",
       "item": [
         {
           "name": "List totems",
@@ -140,7 +229,7 @@
       ]
     },
     {
-      "name": "2. ESP32 feedback demo",
+      "name": "3. ESP32 feedback demo",
       "item": [
         {
           "name": "Set validating feedback",
@@ -201,7 +290,7 @@
       ]
     },
     {
-      "name": "3. FIWARE + STH dashboard flow",
+      "name": "4. FIWARE + STH dashboard flow",
       "item": [
         {
           "name": "Create dashboard entity",

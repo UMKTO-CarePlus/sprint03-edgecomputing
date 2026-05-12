@@ -11,7 +11,7 @@ flowchart LR
     E --> L["LED verde/vermelho + buzzer"]
     P["Postman"] -->|"cria/atualiza entidade"| O["Orion Context Broker :1026"]
     O --> S["STH-Comet :8666"]
-    S --> D["Dashboard Flask :5000"]
+    S --> D["Dashboard Flask :8666"]
 ```
 
 ## Backend Render
@@ -45,6 +45,8 @@ Mapeamento no ESP32:
 Endpoints usados no fluxo do app/Postman:
 
 ```text
+POST /auth/register
+POST /auth/login
 GET  /totems
 POST /missions/start
 POST /missions/sync-steps
@@ -59,8 +61,8 @@ Valores usados:
 
 | Item | Valor |
 |---|---|
-| Orion | `http://35.198.7.130:1026` |
-| STH-Comet | `http://35.198.7.130:8666` |
+| Orion | `http://34.69.120.192:1026` |
+| STH-Comet | `http://34.69.120.192:8666` |
 | FIWARE service | `openiot` |
 | FIWARE service path | `/` |
 | Entity ID | `CarePlusMission:totem001` |
@@ -125,7 +127,9 @@ O dashboard dinamico esta em:
 dashboard_web/app.py
 ```
 
-Ele roda uma pagina web e API local na porta `5000`, consumindo dados historicos do STH-Comet.
+Ele roda uma pagina web e API local na porta `8666`, consumindo dados historicos do STH-Comet.
+
+Quando o dashboard usa a porta publica `8666`, o STH-Comet deve ficar acessivel para o Flask por um endereco interno configurado em `STH_COMET_URL`.
 
 Endpoints principais:
 
@@ -150,7 +154,37 @@ python app.py
 Acesse:
 
 ```text
-http://localhost:5000
+http://localhost:8666
+```
+
+Na VM da entrega, apos liberar a porta `8666`, acesse:
+
+```text
+http://34.69.120.192:8666
+```
+
+Para liberar a porta na GCP, crie uma regra de firewall de entrada:
+
+```text
+Nome: careplus-dashboard-8666
+Direcao: Entrada
+Acao: Permitir
+Alvos: VM FIWARE ou tag de rede da VM
+Origem IPv4: 0.0.0.0/0
+Protocolos e portas: tcp:8666
+Prioridade: 1000
+```
+
+Se usar `gcloud`:
+
+```bash
+gcloud compute firewall-rules create careplus-dashboard-8666 \
+  --direction=INGRESS \
+  --priority=1000 \
+  --network=default \
+  --action=ALLOW \
+  --rules=tcp:8666 \
+  --source-ranges=0.0.0.0/0
 ```
 
 ## Roteiro de teste
@@ -158,23 +192,24 @@ http://localhost:5000
 1. Ligar a VM FIWARE e subir Orion/STH-Comet.
 2. Importar `postman/CarePlus_Sprint03_Render_FIWARE.postman_collection.json`.
 3. Executar `0. Health checks`.
-4. Em `1. App + NFC flow`, executar:
+4. Em `1. Auth setup`, executar `Register test user` e `Login test user`. Esses requests preenchem `userId` automaticamente para evitar o erro `Usuario nao encontrado`.
+5. Em `2. App + NFC flow`, executar:
    - `List totems`;
    - `Start walking mission`;
    - `Sync steps from phone`;
    - `Validate NFC mission`;
    - `Get ESP32 totem status`.
-5. Abrir o Wokwi e rodar o firmware do ESP32.
-6. Em `2. ESP32 feedback demo`, alternar `validating`, `success`, `error` e `idle` para ver LEDs/buzzer.
-7. Em `3. FIWARE + STH dashboard flow`, executar:
+6. Abrir o Wokwi e rodar o firmware do ESP32.
+7. Em `3. ESP32 feedback demo`, alternar `validating`, `success`, `error` e `idle` para ver LEDs/buzzer.
+8. Em `4. FIWARE + STH dashboard flow`, executar:
    - `Create dashboard entity`;
    - `Create STH-Comet subscription`;
    - `Update FIWARE mission history`;
    - `Get dashboard entity keyValues`;
    - `Get STH steps history`;
    - `Get STH distance history`.
-8. Subir o dashboard web com `python dashboard_web/app.py`.
-9. Abrir `http://localhost:5000` ou `http://IP_DA_VM:5000`.
+9. Subir o dashboard web com `python dashboard_web/app.py` ou com o servico `careplus-dashboard`.
+10. Abrir `http://localhost:8666` dentro da VM ou `http://34.69.120.192:8666` externamente.
 
 ## Video de entrega
 
@@ -183,4 +218,4 @@ O video de ate 3 minutos deve mostrar:
 - app no celular iniciando/sincronizando a missao e validando NFC;
 - ESP32/Wokwi acendendo LED verde e tocando buzzer quando o status fica `success`;
 - Postman atualizando a entidade FIWARE;
-- dashboard web na porta `5000` mostrando passos, distancia estimada, pontos e historico.
+- dashboard web na porta `8666` mostrando passos, distancia estimada, pontos e historico.

@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 
-FIWARE_URL = "35.198.7.130"
+FIWARE_URL = "34.69.120.192"
 SERVICE = "openiot"
 SERVICE_PATH = "/"
 ENTITY_ID = "CarePlusToken:token001"

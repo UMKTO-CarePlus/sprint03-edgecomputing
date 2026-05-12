@@ -10,7 +10,7 @@ A solucao usa o app CarePlus no celular para contar passos e validar a missao po
 iot/sprint03_hybrid_esp32/                 Firmware ESP32 simples para LED/buzzer
 iot/sprint03_hybrid_esp32/diagram.json     Circuito Wokwi com 2 LEDs e buzzer
 postman/CarePlus_Sprint03_Render_FIWARE.postman_collection.json
-dashboard_web/app.py                       Dashboard web Flask na porta 5000
+dashboard_web/app.py                       Dashboard web Flask na porta 8666
 dashboard_web/careplus-dashboard.service   Modelo de servico Linux
 docs/sprint03-render-fiware.md             Arquitetura, operacao e roteiro de teste
 INTEGRANTES.TXT
@@ -30,11 +30,12 @@ Postman -> Orion -> STH-Comet -> Dashboard web Flask
 1. Subir a VM FIWARE do professor.
 2. Importar a collection Postman.
 3. Rodar os health checks de Render, Orion e STH-Comet.
-4. No Postman, executar o fluxo do app: listar totens, iniciar missao, sincronizar passos e validar NFC.
-5. No Postman, criar/atualizar a entidade `CarePlusMission:totem001` para alimentar o STH-Comet.
-6. Importar/simular no Wokwi a pasta `iot/sprint03_hybrid_esp32/`.
-7. Usar os requests de feedback do Postman para testar `validating`, `success`, `error` e `idle` no ESP32.
-8. Rodar `python dashboard_web/app.py` e acessar `http://localhost:5000`.
-9. Conferir passos, distancia estimada, pontos e status no dashboard.
+4. No Postman, executar `1. Auth setup` para criar/logar usuario de teste e preencher `userId`.
+5. No Postman, executar o fluxo do app: listar totens, iniciar missao, sincronizar passos e validar NFC.
+6. No Postman, criar/atualizar a entidade `CarePlusMission:totem001` para alimentar o STH-Comet.
+7. Importar/simular no Wokwi a pasta `iot/sprint03_hybrid_esp32/`.
+8. Usar os requests de feedback do Postman para testar `validating`, `success`, `error` e `idle` no ESP32.
+9. Na VM, liberar `tcp:8666`, rodar o servico `careplus-dashboard` e acessar `http://34.69.120.192:8666`.
+10. Conferir passos, distancia estimada, pontos e status no dashboard.
 
 Detalhes completos em `docs/sprint03-render-fiware.md`.

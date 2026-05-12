@@ -6,7 +6,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/careplus-dashboard
-Environment=FIWARE_HOST=35.198.7.130
+Environment=FIWARE_HOST=34.69.120.192
+Environment=DASHBOARD_PORT=8666
 Environment=FIWARE_SERVICE=openiot
 Environment=FIWARE_SERVICE_PATH=/
 Environment=ENTITY_ID=CarePlusMission:totem001
