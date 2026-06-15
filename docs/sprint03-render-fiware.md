@@ -1,6 +1,8 @@
 # CarePlus Sprint 03 - App NFC + FIWARE
 
-Este documento descreve a arquitetura final de Edge Computing. O app CarePlus no celular conta passos, valida a missao por NFC e atualiza o backend no Render. O ESP32 funciona como totem de feedback fisico com dois LEDs e buzzer. O historico para o dashboard web e alimentado no FIWARE via Postman e persistido no STH-Comet.
+Este documento descreve a arquitetura final de Edge Computing. O app CarePlus no celular conta passos, valida a missao por NFC e atualiza o backend no Render. O ESP32 funciona como totem de feedback fisico com dois LEDs e buzzer. O backend sincroniza a telemetria com o Orion, e o STH-Comet persiste o historico usado pelo dashboard.
+
+O professor aprovou a API FastAPI no Render no lugar do Node-RED e o totem ESP32 no lugar do wearable descrito no enunciado geral.
 
 ## Arquitetura
 
@@ -9,9 +11,10 @@ flowchart LR
     A["App CarePlus no celular"] -->|"passos + NFC"| R["FastAPI no Render"]
     R -->|"GET /iot/totem-status/totem001"| E["ESP32 totem"]
     E --> L["LED verde/vermelho + buzzer"]
-    P["Postman"] -->|"cria/atualiza entidade"| O["Orion Context Broker :1026"]
+    R -->|"sincroniza missao"| O["Orion Context Broker :1026"]
+    P["Postman"] -->|"configura/testa"| O
     O --> S["STH-Comet :8666"]
-    S --> D["Dashboard Flask :8666"]
+    S --> D["Dashboard Flask :8080"]
 ```
 
 ## Backend Render
@@ -127,9 +130,9 @@ O dashboard dinamico esta em:
 dashboard_web/app.py
 ```
 
-Ele roda uma pagina web e API local na porta `8666`, consumindo dados historicos do STH-Comet.
+Ele roda uma pagina web e API local na porta `8080`, consumindo dados historicos do STH-Comet na porta `8666`.
 
-Quando o dashboard usa a porta publica `8666`, o STH-Comet deve ficar acessivel para o Flask por um endereco interno configurado em `STH_COMET_URL`.
+Na VM, configure `STH_COMET_URL=http://127.0.0.1:8666` e publique somente o dashboard na porta `8080`.
 
 Endpoints principais:
 
@@ -154,36 +157,36 @@ python app.py
 Acesse:
 
 ```text
-http://localhost:8666
+http://localhost:8080
 ```
 
-Na VM da entrega, apos liberar a porta `8666`, acesse:
+Na VM da entrega, apos liberar a porta `8080`, acesse:
 
 ```text
-http://34.69.120.192:8666
+http://34.69.120.192:8080
 ```
 
 Para liberar a porta na GCP, crie uma regra de firewall de entrada:
 
 ```text
-Nome: careplus-dashboard-8666
+Nome: careplus-dashboard-8080
 Direcao: Entrada
 Acao: Permitir
 Alvos: VM FIWARE ou tag de rede da VM
 Origem IPv4: 0.0.0.0/0
-Protocolos e portas: tcp:8666
+Protocolos e portas: tcp:8080
 Prioridade: 1000
 ```
 
 Se usar `gcloud`:
 
 ```bash
-gcloud compute firewall-rules create careplus-dashboard-8666 \
+gcloud compute firewall-rules create careplus-dashboard-8080 \
   --direction=INGRESS \
   --priority=1000 \
   --network=default \
   --action=ALLOW \
-  --rules=tcp:8666 \
+  --rules=tcp:8080 \
   --source-ranges=0.0.0.0/0
 ```
 
@@ -199,23 +202,23 @@ gcloud compute firewall-rules create careplus-dashboard-8666 \
    - `Sync steps from phone`;
    - `Validate NFC mission`;
    - `Get ESP32 totem status`.
-6. Abrir o Wokwi e rodar o firmware do ESP32.
+6. Ligar o ESP32 fisico com LEDs nos GPIOs 18/19 e buzzer no GPIO 23. O Wokwi fica como alternativa de simulacao.
 7. Em `3. ESP32 feedback demo`, alternar `validating`, `success`, `error` e `idle` para ver LEDs/buzzer.
 8. Em `4. FIWARE + STH dashboard flow`, executar:
    - `Create dashboard entity`;
    - `Create STH-Comet subscription`;
-   - `Update FIWARE mission history`;
+   - confirmar a sincronizacao automatica do Render ou executar `Update FIWARE mission history` como fallback;
    - `Get dashboard entity keyValues`;
    - `Get STH steps history`;
    - `Get STH distance history`.
 9. Subir o dashboard web com `python dashboard_web/app.py` ou com o servico `careplus-dashboard`.
-10. Abrir `http://localhost:8666` dentro da VM ou `http://34.69.120.192:8666` externamente.
+10. Abrir `http://localhost:8080` dentro da VM ou `http://34.69.120.192:8080` externamente.
 
 ## Video de entrega
 
 O video de ate 3 minutos deve mostrar:
 
 - app no celular iniciando/sincronizando a missao e validando NFC;
-- ESP32/Wokwi acendendo LED verde e tocando buzzer quando o status fica `success`;
+- ESP32 fisico acendendo LED verde e tocando buzzer quando o status fica `success`;
 - Postman atualizando a entidade FIWARE;
-- dashboard web na porta `8666` mostrando passos, distancia estimada, pontos e historico.
+- dashboard web na porta `8080` mostrando passos, distancia estimada, pontos e historico.

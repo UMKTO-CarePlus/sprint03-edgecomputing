@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 FIWARE_URL = "34.69.120.192"
 SERVICE = "openiot"
 SERVICE_PATH = "/"
-ENTITY_ID = "CarePlusToken:token001"
-ENTITY_TYPE = "CarePlusToken"
+ENTITY_ID = "CarePlusMission:totem001"
+ENTITY_TYPE = "CarePlusWalkingMission"
 
 HEADERS = {
     "fiware-service": SERVICE,
@@ -60,14 +60,13 @@ display(pd.DataFrame([entity]).T.rename(columns={0: "valor"}))
 
 tracked_attributes = [
     "steps",
-    "pendingSteps",
-    "tokenValue",
-    "totalPoints",
-    "batteryLevel",
-    "rssi",
-    "accelX",
-    "accelY",
-    "accelZ",
+    "distanceMeters",
+    "distanceKm",
+    "points",
+    "validationStatus",
+    "totemId",
+    "missionId",
+    "userId",
 ]
 
 frames = []
@@ -90,20 +89,15 @@ else:
     history = history.sort_values("recvTime").reset_index(drop=True)
     display(history.tail(20))
 
-    main_cols = [col for col in ["steps", "pendingSteps", "totalPoints", "batteryLevel"] if col in history]
+    main_cols = [
+        col
+        for col in ["steps", "distanceMeters", "distanceKm", "points"]
+        if col in history
+    ]
     if main_cols:
         history.plot(x="recvTime", y=main_cols, figsize=(12, 5), marker="o")
-        plt.title("CarePlus Sprint 03 - passos, pontos e bateria")
+        plt.title("CarePlus Sprint 03 - passos, distancia e pontos")
         plt.xlabel("Horario")
         plt.ylabel("Valor")
-        plt.grid(True)
-        plt.show()
-
-    accel_cols = [col for col in ["accelX", "accelY", "accelZ"] if col in history]
-    if accel_cols:
-        history.plot(x="recvTime", y=accel_cols, figsize=(12, 5), marker=".")
-        plt.title("CarePlus Sprint 03 - acelerometro MPU6050")
-        plt.xlabel("Horario")
-        plt.ylabel("m/s2")
         plt.grid(True)
         plt.show()

@@ -4,27 +4,94 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "renderBaseUrl", "value": "https://careplus-sprint3-umkto.onrender.com" },
-    { "key": "fiwareHost", "value": "34.69.120.192" },
-    { "key": "fiwareService", "value": "openiot" },
-    { "key": "fiwareServicePath", "value": "/" },
-    { "key": "userId", "value": "" },
-    { "key": "postmanFullName", "value": "Postman CarePlus" },
-    { "key": "postmanEmail", "value": "" },
-    { "key": "postmanPhone", "value": "11999999999" },
-    { "key": "postmanCpf", "value": "" },
-    { "key": "postmanBirthDate", "value": "01/01/1990" },
-    { "key": "postmanPassword", "value": "Senha123" },
-    { "key": "totemId", "value": "totem001" },
-    { "key": "nfcToken", "value": "CP-TOTEM-001" },
-    { "key": "missionId", "value": "mission_walk_totem001" },
-    { "key": "steps", "value": "1000" },
-    { "key": "points", "value": "100" },
-    { "key": "validationStatus", "value": "success" },
-    { "key": "distanceMeters", "value": "750" },
-    { "key": "distanceKm", "value": "0.75" },
-    { "key": "entityId", "value": "CarePlusMission:totem001" },
-    { "key": "entityType", "value": "CarePlusWalkingMission" }
+    {
+      "key": "renderBaseUrl",
+      "value": "https://careplus-sprint3-umkto.onrender.com"
+    },
+    {
+      "key": "fiwareHost",
+      "value": "34.69.120.192"
+    },
+    {
+      "key": "fiwareService",
+      "value": "openiot"
+    },
+    {
+      "key": "fiwareServicePath",
+      "value": "/"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "postmanFullName",
+      "value": "Postman CarePlus"
+    },
+    {
+      "key": "postmanEmail",
+      "value": ""
+    },
+    {
+      "key": "postmanPhone",
+      "value": "11999999999"
+    },
+    {
+      "key": "postmanCpf",
+      "value": ""
+    },
+    {
+      "key": "postmanBirthDate",
+      "value": "01/01/1990"
+    },
+    {
+      "key": "postmanPassword",
+      "value": "Senha123"
+    },
+    {
+      "key": "totemId",
+      "value": "totem001"
+    },
+    {
+      "key": "nfcToken",
+      "value": "CP-TOTEM-001"
+    },
+    {
+      "key": "missionId",
+      "value": "mission_walk_totem001"
+    },
+    {
+      "key": "steps",
+      "value": "1000"
+    },
+    {
+      "key": "points",
+      "value": "100"
+    },
+    {
+      "key": "validationStatus",
+      "value": "success"
+    },
+    {
+      "key": "distanceMeters",
+      "value": "750"
+    },
+    {
+      "key": "distanceKm",
+      "value": "0.75"
+    },
+    {
+      "key": "entityId",
+      "value": "CarePlusMission:totem001"
+    },
+    {
+      "key": "entityType",
+      "value": "CarePlusWalkingMission"
+    },
+    {
+      "key": "dashboardBaseUrl",
+      "value": "http://34.69.120.192:8080"
+    }
   ],
   "item": [
     {
@@ -35,21 +102,113 @@
           "request": {
             "method": "GET",
             "url": "{{renderBaseUrl}}/"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"API Render online\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.status).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Orion version",
           "request": {
             "method": "GET",
             "url": "http://{{fiwareHost}}:1026/version"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "STH-Comet version",
           "request": {
             "method": "GET",
             "url": "http://{{fiwareHost}}:8666/version"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard web health",
+          "request": {
+            "method": "GET",
+            "url": "{{dashboardBaseUrl}}/api/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"Dashboard consulta Orion/STH\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.service).to.eql(\"careplus-dashboard\");",
+                  "  pm.expect(data.dashboardPort).to.eql(8080);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -86,9 +245,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const data = pm.response.json();",
-                  "if (data.user && data.user.id) {",
-                  "  pm.collectionVariables.set('userId', data.user.id);",
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
                   "}"
                 ]
               }
@@ -97,7 +261,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/auth/register",
             "body": {
@@ -114,9 +281,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const data = pm.response.json();",
-                  "if (data.user && data.user.id) {",
-                  "  pm.collectionVariables.set('userId', data.user.id);",
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
                   "}"
                 ]
               }
@@ -125,7 +297,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/auth/login",
             "body": {
@@ -144,7 +319,26 @@
           "request": {
             "method": "GET",
             "url": "{{renderBaseUrl}}/totems"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Start walking mission",
@@ -154,10 +348,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const data = pm.response.json();",
-                  "if (data.mission && data.mission.id) {",
-                  "  pm.collectionVariables.set('missionId', data.mission.id);",
-                  "  pm.collectionVariables.set('points', String(data.mission.points || pm.collectionVariables.get('points')));",
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
                   "}"
                 ]
               }
@@ -166,7 +364,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/missions/start",
             "body": {
@@ -180,14 +381,36 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/missions/sync-steps",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"mission_id\": \"{{missionId}}\",\n  \"steps\": {{steps}}\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Validate NFC mission",
@@ -197,11 +420,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const data = pm.response.json();",
-                  "if (data.validation) {",
-                  "  pm.collectionVariables.set('steps', String(data.validation.steps || pm.collectionVariables.get('steps')));",
-                  "  pm.collectionVariables.set('points', String(data.validation.points || pm.collectionVariables.get('points')));",
-                  "  pm.collectionVariables.set('validationStatus', 'success');",
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
                   "}"
                 ]
               }
@@ -210,7 +436,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/missions/validate-nfc",
             "body": {
@@ -224,7 +453,31 @@
           "request": {
             "method": "GET",
             "url": "{{renderBaseUrl}}/iot/totem-status/{{totemId}}"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"Schema do status do totem\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.have.keys([\"totemId\", \"status\", \"message\", \"updatedAt\"]);",
+                  "  pm.expect([\"idle\", \"validating\", \"success\", \"error\"]).to.include(data.status);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -236,56 +489,144 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/iot/totem-feedback",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"validating\",\n  \"message\": \"Validando NFC no app.\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Set success feedback",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/iot/totem-feedback",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"success\",\n  \"message\": \"Missao validada. Acender LED verde e tocar sucesso.\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Set error feedback",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/iot/totem-feedback",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"error\",\n  \"message\": \"Falha na validacao NFC.\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Set idle feedback",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": "{{renderBaseUrl}}/iot/totem-feedback",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"totem_id\": \"{{totemId}}\",\n  \"status\": \"idle\",\n  \"message\": \"Aguardando evento.\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -297,32 +638,88 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:1026/v2/entities",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id\": \"{{entityId}}\",\n  \"type\": \"{{entityType}}\",\n  \"steps\": { \"type\": \"Integer\", \"value\": 0 },\n  \"distanceMeters\": { \"type\": \"Number\", \"value\": 0 },\n  \"distanceKm\": { \"type\": \"Number\", \"value\": 0 },\n  \"points\": { \"type\": \"Integer\", \"value\": 0 },\n  \"validationStatus\": { \"type\": \"Text\", \"value\": \"idle\" },\n  \"totemId\": { \"type\": \"Text\", \"value\": \"{{totemId}}\" },\n  \"missionId\": { \"type\": \"Text\", \"value\": \"{{missionId}}\" },\n  \"userId\": { \"type\": \"Text\", \"value\": \"{{userId}}\" }\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([201, 422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Create STH-Comet subscription",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:1026/v2/subscriptions",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"description\": \"CarePlus walking mission history\",\n  \"subject\": {\n    \"entities\": [\n      { \"id\": \"{{entityId}}\", \"type\": \"{{entityType}}\" }\n    ],\n    \"condition\": {\n      \"attrs\": [\"steps\", \"distanceMeters\", \"distanceKm\", \"points\", \"validationStatus\", \"totemId\", \"missionId\", \"userId\"]\n    }\n  },\n  \"notification\": {\n    \"http\": { \"url\": \"http://sth-comet:8666/notify\" },\n    \"attrs\": [\"steps\", \"distanceMeters\", \"distanceKm\", \"points\", \"validationStatus\", \"totemId\", \"missionId\", \"userId\"],\n    \"attrsFormat\": \"legacy\"\n  },\n  \"throttling\": 1\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update FIWARE mission history",
@@ -342,14 +739,40 @@
                   "}"
                 ]
               }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}"
+                ]
+              }
             }
           ],
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}/attrs?options=forcedUpdate",
             "body": {
@@ -363,33 +786,121 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:1026/v2/entities/{{entityId}}?options=keyValues"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"Entidade FIWARE da missao\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.id).to.eql(pm.collectionVariables.get(\"entityId\"));",
+                  "  pm.expect(data.type).to.eql(pm.collectionVariables.get(\"entityType\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get STH steps history",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/{{entityType}}/id/{{entityId}}/attributes/steps?lastN=20"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"Historico STH de passos possui contextResponses\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.contextResponses).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get STH distance history",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "fiware-service", "value": "{{fiwareService}}" },
-              { "key": "fiware-servicepath", "value": "{{fiwareServicePath}}" }
+              {
+                "key": "fiware-service",
+                "value": "{{fiwareService}}"
+              },
+              {
+                "key": "fiware-servicepath",
+                "value": "{{fiwareServicePath}}"
+              }
             ],
             "url": "http://{{fiwareHost}}:8666/STH/v1/contextEntities/type/{{entityType}}/id/{{entityId}}/attributes/distanceMeters?lastN=20"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status esperado\", function () {",
+                  "  pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code !== 204) {",
+                  "  pm.test(\"Resposta em JSON valido\", function () {",
+                  "    pm.response.to.be.json;",
+                  "  });",
+                  "}",
+                  "pm.test(\"Historico STH de distancia possui contextResponses\", function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.contextResponses).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

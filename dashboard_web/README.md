@@ -1,6 +1,6 @@
 # CarePlus Sprint 03 - Dashboard Web FIWARE
 
-Dashboard web em Python/Flask para apresentar passos, distancia estimada, pontos e validacoes historicas consumidas da API STH-Comet na porta `8666`.
+Dashboard web em Python/Flask para apresentar passos, distancia estimada, pontos e validacoes historicas. O dashboard usa a porta `8080` e consulta o STH-Comet na porta `8666`.
 
 ## Rodar localmente
 
@@ -15,13 +15,13 @@ python app.py
 Acesse:
 
 ```text
-http://localhost:8666
+http://localhost:8080
 ```
 
 Na VM FIWARE da entrega, o acesso publico esperado e:
 
 ```text
-http://34.69.120.192:8666
+http://34.69.120.192:8080
 ```
 
 ## APIs disponiveis
@@ -38,15 +38,15 @@ GET /api/history/distanceMeters?lastN=100
 
 ```text
 FIWARE_HOST=34.69.120.192
-STH_COMET_URL=http://34.69.120.192:8666
-DASHBOARD_PORT=8666
+STH_COMET_URL=http://127.0.0.1:8666
+DASHBOARD_PORT=8080
 FIWARE_SERVICE=openiot
 FIWARE_SERVICE_PATH=/
 ENTITY_ID=CarePlusMission:totem001
 ENTITY_TYPE=CarePlusWalkingMission
 ```
 
-Se o dashboard tambem estiver publicado na porta `8666`, ajuste `STH_COMET_URL` para o endereco interno do STH-Comet. Assim a porta publica `8666` fica com o dashboard e o STH-Comet continua sendo consultado pela rede interna.
+Na VM, o STH-Comet permanece em `127.0.0.1:8666`. O dashboard e publicado separadamente em `0.0.0.0:8080`, evitando conflito entre os dois servicos.
 
 ## Instalar como servico Linux
 
@@ -68,39 +68,39 @@ sudo systemctl status careplus-dashboard
 Teste dentro da VM:
 
 ```bash
-curl http://localhost:8666/
-curl http://localhost:8666/api/health
-curl "http://localhost:8666/api/history?lastN=5"
+curl http://localhost:8080/
+curl http://localhost:8080/api/health
+curl "http://localhost:8080/api/history?lastN=5"
 ```
 
-## Liberar porta 8666 na GCP
+## Liberar porta 8080 na GCP
 
 Crie uma regra de firewall de entrada:
 
 ```text
-Nome: careplus-dashboard-8666
+Nome: careplus-dashboard-8080
 Direcao: Entrada
 Acao: Permitir
 Alvos: VM FIWARE ou tag de rede da VM
 Origem IPv4: 0.0.0.0/0
-Protocolos e portas: tcp:8666
+Protocolos e portas: tcp:8080
 Prioridade: 1000
 ```
 
 Com `gcloud`, o comando equivalente e:
 
 ```bash
-gcloud compute firewall-rules create careplus-dashboard-8666 \
+gcloud compute firewall-rules create careplus-dashboard-8080 \
   --direction=INGRESS \
   --priority=1000 \
   --network=default \
   --action=ALLOW \
-  --rules=tcp:8666 \
+  --rules=tcp:8080 \
   --source-ranges=0.0.0.0/0
 ```
 
 Depois acesse:
 
 ```text
-http://34.69.120.192:8666
+http://34.69.120.192:8080
 ```

@@ -7,7 +7,7 @@ from flask import Flask, jsonify, render_template_string, request
 
 FIWARE_HOST = os.getenv("FIWARE_HOST", "34.69.120.192")
 STH_COMET_URL = os.getenv("STH_COMET_URL", f"http://{FIWARE_HOST}:8666").rstrip("/")
-DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "8666"))
+DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "8080"))
 FIWARE_SERVICE = os.getenv("FIWARE_SERVICE", "openiot")
 FIWARE_SERVICE_PATH = os.getenv("FIWARE_SERVICE_PATH", "/")
 ENTITY_ID = os.getenv("ENTITY_ID", "CarePlusMission:totem001")

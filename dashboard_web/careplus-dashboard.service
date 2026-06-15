@@ -7,7 +7,8 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/opt/careplus-dashboard
 Environment=FIWARE_HOST=34.69.120.192
-Environment=DASHBOARD_PORT=8666
+Environment=STH_COMET_URL=http://127.0.0.1:8666
+Environment=DASHBOARD_PORT=8080
 Environment=FIWARE_SERVICE=openiot
 Environment=FIWARE_SERVICE_PATH=/
 Environment=ENTITY_ID=CarePlusMission:totem001

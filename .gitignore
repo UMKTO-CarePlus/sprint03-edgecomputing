@@ -12,3 +12,8 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local environments and generated dashboard files
+.env
+venv/
+.venv/
