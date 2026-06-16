@@ -8,6 +8,12 @@ Aplicativo integrado:
 
 https://github.com/UMKTO-CarePlus/careplus-sprint3-UMKTO
 
+## Participantes
+
+- RM566949 - Roger De Carvalho Paiva
+- RM567855 - David Ernesto Mogollon Gama
+- RM567680 - Pedro Henrique Tavares Viana
+
 ## Decisoes aprovadas
 
 Para a arquitetura final apresentada ao professor:
@@ -56,4 +62,6 @@ Detalhes completos em `docs/sprint03-render-fiware.md`.
 
 ## Video da entrega
 
-Video publico de ate 3 minutos: **adicionar URL do YouTube antes do envio**.
+Video publico da entrega:
+
+https://youtu.be/UoN3zgkZmFk

@@ -216,7 +216,11 @@ gcloud compute firewall-rules create careplus-dashboard-8080 \
 
 ## Video de entrega
 
-O video de ate 3 minutos deve mostrar:
+Video publico da entrega:
+
+https://youtu.be/UoN3zgkZmFk
+
+O video de ate 3 minutos mostra:
 
 - app no celular iniciando/sincronizando a missao e validando NFC;
 - ESP32 fisico acendendo LED verde e tocando buzzer quando o status fica `success`;
