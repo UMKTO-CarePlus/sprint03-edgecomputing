@@ -6,6 +6,8 @@ O professor aprovou a API FastAPI no Render no lugar do Node-RED e o totem ESP32
 
 ## Arquitetura
 
+![CarePlus Sprint 03 - Arquitetura de Edge Computing](evidencias/697be6e5-eeed-425b-b65e-298fe17b635d.png)
+
 ```mermaid
 flowchart LR
     A["App CarePlus no celular"] -->|"passos + NFC"| R["FastAPI no Render"]

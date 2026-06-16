@@ -12,6 +12,10 @@ Simulacao Wokwi do ESP32:
 
 https://wokwi.com/projects/463480006143988737
 
+Imagem da arquitetura:
+
+![CarePlus Sprint 03 - Arquitetura de Edge Computing](docs/evidencias/697be6e5-eeed-425b-b65e-298fe17b635d.png)
+
 ## Participantes
 
 - RM566949 - Roger De Carvalho Paiva
