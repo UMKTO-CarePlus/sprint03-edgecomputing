@@ -99,6 +99,12 @@ O firmware esta em:
 iot/sprint03_hybrid_esp32/sprint03_hybrid_esp32.ino
 ```
 
+Simulacao Wokwi:
+
+```text
+https://wokwi.com/projects/463480006143988737
+```
+
 Ele usa apenas:
 
 ```cpp

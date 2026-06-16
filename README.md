@@ -8,6 +8,10 @@ Aplicativo integrado:
 
 https://github.com/UMKTO-CarePlus/careplus-sprint3-UMKTO
 
+Simulacao Wokwi do ESP32:
+
+https://wokwi.com/projects/463480006143988737
+
 ## Participantes
 
 - RM566949 - Roger De Carvalho Paiva
@@ -53,7 +57,7 @@ Dashboard Flask :8080 -> STH-Comet :8666
 4. No Postman, executar `1. Auth setup` para criar/logar usuario de teste e preencher `userId`.
 5. No Postman, executar o fluxo do app: listar totens, iniciar missao, sincronizar passos e validar NFC.
 6. Confirmar que a API sincronizou a entidade `CarePlusMission:totem001` no Orion.
-7. Usar o ESP32 fisico ou simular a pasta `iot/sprint03_hybrid_esp32/` no Wokwi.
+7. Usar o ESP32 fisico ou simular o projeto no Wokwi: `https://wokwi.com/projects/463480006143988737`.
 8. Usar os requests de feedback do Postman para testar `validating`, `success`, `error` e `idle` no ESP32.
 9. Na VM, manter o STH-Comet em `8666`, liberar `tcp:8080` e acessar `http://34.69.120.192:8080`.
 10. Conferir passos, distancia estimada, pontos e status no dashboard.
